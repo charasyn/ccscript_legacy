@@ -1,0 +1,17 @@
+///@name: Insert Binary File Expression Test
+///@desc: Tests insertion of binary files
+///@expect:
+/// "[00 01 02 03]"
+/// "[31 41 59 26]"
+/// "[fc fd fe ff]"
+/// "[fc fd fe ff]"
+/// "[00 01 02 03]"
+/// "[31 41 59]"
+
+// The hex file should have the following data:
+// "[00 01 02 03 31 41 59 26 FC FD FE FF]"
+
+insertbin       "insertbinexpr_data.bin"
+insertbin [0x8] "insertbinexpr_data.bin"
+insertbin [0,4] "insertbinexpr_data.bin"
+insertbin [4,3] "insertbinexpr_data.bin"

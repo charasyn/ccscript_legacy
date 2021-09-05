@@ -328,6 +328,8 @@ Expression* Parser::expression()
 	// TODO: give boundedexpr() a parameter specifying this. :)
 	if(sym == bytesym || sym == shortsym || sym == longsym)
 		return boundedexpr();
+	if(accept(insertbinsym))
+		return insertbinexpr();
 
 	int line = last.line;
 	Expression* exp1 = factor();
@@ -361,6 +363,30 @@ Expression* Parser::boundedexpr() {
 	}
 
 	ex->SetExpr(expression());
+
+	return ex;
+}
+
+/*
+ *  insertbinexpr := 'insertbin' [ '[' INT_LITERAL [ ',' INT_LITERAL ] ']' ] STRING_LITERAL
+ *                                      ^ offset          ^ size              ^ path
+ */
+Expression* Parser::insertbinexpr() {
+	InsertBinExpr* ex = new InsertBinExpr(last.line, error);
+
+	// Check for an offset
+	if(accept(leftbracket)) {
+		expect(intliteral);
+		ex->SetOffset(last.ival);
+		if(accept(comma)) {
+			expect(intliteral);
+			ex->SetSize(last.ival);
+		}
+		expect(rightbracket);
+	}
+
+	expect(stringliteral);
+	ex->SetPath(last.sval);
 
 	return ex;
 }

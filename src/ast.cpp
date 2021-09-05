@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
+#include <cstdint>
 
 #include "anchor.h"
 #include "symboltable.h"
@@ -14,6 +15,8 @@
 #include "stringparser.h"
 #include "exception.h"
 #include "compiler.h"
+#include "util.h"
+#include "fs.h"
 
 using namespace std;
 
@@ -874,6 +877,50 @@ Value BoundedExpr::Evaluate(SymbolTable* scope, EvalContext& context, bool asboo
 	return Value(value);
 }
 
+Value InsertBinExpr::Evaluate(SymbolTable* scope, EvalContext& context, bool asbool)
+{
+	String* value = new String();
+
+	// Load the file's bytes into value
+	try {
+		// Try and find the file:
+		fs::path file_dir = fs::path(context.file).parent_path();
+		std::string fullpath = util::FindIncludedFile(path, file_dir.string(), std::string());
+		if (fullpath.empty()) {
+			std::stringstream ss;
+			ss << "Unable to open file '" << path << "'.";
+			throw Exception(ss.str());
+		}
+
+		// Try and read the file:
+		// Only 64K bytes can go in a bank. Allocate that much space, and read up to
+		// that many bytes.
+		uint8_t *data = new uint8_t[65536];
+		std::streamsize data_size;
+		{
+			std::ifstream fobj(util::ConvertToNativeString(fullpath), std::ios::binary);
+			fobj.seekg(offset, std::ios::beg);
+			fobj.read(reinterpret_cast<char*>(data), (size == -1) ? 65536 : size);
+			data_size = fobj.gcount();
+			if(size != -1 && data_size != size) {
+				std::stringstream ss;
+				ss << "Unable to read " << size;
+				ss << " bytes from file at offset " << offset;
+				ss << " , could only read " << data_size << " bytes.";
+				throw Exception(ss.str());
+			}
+		}
+		
+		// Put file data into value:
+		value->AppendBytes(data, data_size);
+	}
+	catch (Exception& e) {
+		Error(e.GetMessage());
+	}
+
+	return Value(value);
+}
+
 
 map<string,int> CountExpr::counters;
 
@@ -1045,6 +1092,21 @@ string BoundedExpr::ToString(const string &indent, bool s) const
 		ss << "[" << index << "] ";
 	}
 	ss << expr->ToString(indent, s);
+	return ss.str();
+}
+
+string InsertBinExpr::ToString(const string &indent, bool s) const
+{
+	stringstream ss;
+	ss << "insertbin ";
+	if(offset != 0 || size != -1) {
+		ss << "[" << offset;
+		if(size != -1) {
+			ss << ", " << size;
+		}
+		ss << "] ";
+	}
+	ss << "\"" << path << "\"";
 	return ss.str();
 }
 

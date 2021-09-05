@@ -31,6 +31,7 @@ typedef enum {
 	notexpr,
 	identexpr,
 	boundedexpr,
+	insertbinexpr,
 	romwritestmt,
 	countexpr,		// more duct tape! yay!
 	ambiguousid,
@@ -697,6 +698,24 @@ public:
 
 	// implemented in ast.cpp
 	void PreTypecheck(SymbolTable* root, bool atroot);
+	std::string ToString(const std::string& indent, bool s=false) const;
+	Value Evaluate(SymbolTable* scope, EvalContext& context, bool asbool=false);
+};
+
+class InsertBinExpr : public Expression
+{
+private:
+	int offset;
+	int size;
+	std::string path;
+public:
+	InsertBinExpr(int line, ErrorReceiver *e) : Expression(line, e), offset(0), size(-1), path() {}
+	void SetOffset(int n) { offset = n; }
+	void SetSize(int n) { size = n; }
+	void SetPath(const std::string& s) { path = s; }
+	nodetype GetType() const { return insertbinexpr; }
+
+	// implemented in ast.cpp
 	std::string ToString(const std::string& indent, bool s=false) const;
 	Value Evaluate(SymbolTable* scope, EvalContext& context, bool asbool=false);
 };

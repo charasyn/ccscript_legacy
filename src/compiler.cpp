@@ -59,7 +59,7 @@ Compiler::Compiler(const string& romfile, unsigned int adr, unsigned int endadr)
 	nostdlibs = false;
 
 	// Open the file
-	ifstream file(ConvertToNativeString(filename), ifstream::binary);
+	ifstream file(util::ConvertToNativeString(filename), ifstream::binary);
 
 	if(file.fail()) {
 		Error("failed to open file " + filename + " for reading.");
@@ -129,7 +129,7 @@ Compiler::~Compiler()
 void Compiler::WriteOutput()
 {
 	if(failed) return;
-	ofstream file(ConvertToNativeString(filename), ofstream::binary);
+	ofstream file(util::ConvertToNativeString(filename), ofstream::binary);
 
 	if(file.fail()) {
 		Error("failed to open file " + filename + " for writing.");
@@ -174,49 +174,12 @@ Module* Compiler::LoadModule(const std::string &filename)
 	return m;
 }
 
-
-/*
- * Searches for a module with a given name in the include path and
- * returns a relative path to it, if found.
- *
- * The directories checked are as follows:
- *
- *  0. If the path is complete, no searching is done
- *  1. The directory which contains the file performing the import.
- *  2. The project working directory
- *  3. The compiler's /lib directory.
- */
-
-string Compiler::FindModule(const string& name, const string& filedir)
-{
-	// Complete paths aren't looked for in include directories
-	if (fs::path(name).is_absolute())
-		return fs::exists( name ) ? name : "";
-
-	// First, try in the provided file directory.
-	fs::path base(filedir);
-	base /= name;
-	if( fs::exists( base ) )
-		return base.string();
-
-	// Next, try in the compilation working directory
-	if( fs::exists( name ) )
-		return name;
-
-	// Finally, check the libs directory.
-	fs::path libpath = fs::path(libdir) / name;
-	if( fs::exists(libpath) )
-		return libpath.string();
-
-	return "";
-}
-
 /*
  * Searches the include paths for a module and loads it if found.
  */
 Module* Compiler::FindAndLoadModule(const string& name, const string& filedir)
 {
-	string found = FindModule(name, filedir);
+	string found = util::FindIncludedFile(name, filedir, libdir);
 
 	if(found.empty())
 		return NULL;
@@ -334,7 +297,7 @@ void Compiler::ProcessImports()
 				// Check this new import; if it refers to the same file that we've already
 				// included in the project, it's okay; otherwise it's an error, since module
 				// names must be unique.
-				fs::path newpath		( FindModule(filename, module_dir.string()) );
+				fs::path newpath		( util::FindIncludedFile(filename, module_dir.string(), libdir) );
 				fs::path existingpath	( imp->GetFileName() );
 
 				if( !fs::equivalent(existingpath, newpath) ) {
@@ -575,7 +538,7 @@ void Compiler::DoDelayedWrites()
  */
 void Compiler::WriteResetInfo(const std::string &filename)
 {
-	ofstream file(ConvertToNativeString(filename));
+	ofstream file(util::ConvertToNativeString(filename));
 
 	if(file.fail())
 		throw Exception("couldn't create info file '" + filename + "'");
@@ -620,7 +583,7 @@ void Compiler::WriteResetInfo(const std::string &filename)
 
 void Compiler::ApplyResetInfo(const std::string& filename)
 {
-	ifstream file(ConvertToNativeString(filename));
+	ifstream file(util::ConvertToNativeString(filename));
 
 	if(file.fail())
 		return;

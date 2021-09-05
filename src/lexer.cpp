@@ -36,6 +36,7 @@ void Lexer::Init()
 	AddKeyword("ROM", romsym);
 	AddKeyword("ROMTBL", romtblsym);
 	AddKeyword("import", importsym);
+	AddKeyword("insertbin", insertbinsym);
 	AddKeyword("count", countsym);
 	AddKeyword("setcount", setcountsym);
 	line = 1;
@@ -97,6 +98,7 @@ void Lexer::AddKeyword(const string& kw, symbol sym)
 		case comma: return ",";
 		case equals: return "=";
 		case importsym: return "import";
+		case insertbinsym: return "insertbin";
 		case countsym: return "count";
 		case setcountsym: return "setcount";
 		default: return "INVALID SYMBOL";

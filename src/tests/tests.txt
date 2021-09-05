@@ -36,3 +36,6 @@ lib_rom.ccs
 
 // Full ROM hack tests
 hack_shoptest.ccs
+
+// insertbin test
+insertbinexpr.ccs
