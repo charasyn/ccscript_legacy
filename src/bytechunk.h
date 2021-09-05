@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <cstring>
+#include <cstdint>
 
 class Anchor;
 
@@ -117,6 +118,7 @@ public:
 	void Char(unsigned int n);
 	void Short(unsigned int n);
 	void Long(unsigned int n);
+	void AppendBytes(const uint8_t *data, size_t size);
 
 	
 

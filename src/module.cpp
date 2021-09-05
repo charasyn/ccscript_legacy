@@ -70,7 +70,7 @@ void Module::Load(const string& filename)
 		return;
 	}
 
-	ifstream in(ConvertToNativeString(filename));
+	ifstream in(util::ConvertToNativeString(filename));
 	if(in.fail())
 	{
 		parent->Error("couldn't open " + filename);
@@ -170,6 +170,7 @@ void Module::Execute()
 	context.compiler = this->parent;
 	context.labels = this->GetRootTable();
 	context.output = this->GetCodeChunk();
+	context.file = this->filename;
 	program->Run(roottable, context);
 }
 

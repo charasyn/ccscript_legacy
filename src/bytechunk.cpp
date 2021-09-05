@@ -124,6 +124,13 @@ void ByteChunk::Byte(unsigned int n)
 	cinfo.push_back(false);
 }
 
+void ByteChunk::AppendBytes(const uint8_t *data, size_t size)
+{
+	pos += size;
+	bytes.insert(std::end(bytes), data, data+size);
+	cinfo.insert(std::end(cinfo), size, false);
+}
+
 void ByteChunk::Char(unsigned int n)
 {
 	// TODO: character set mapping should be moved to a higher level;

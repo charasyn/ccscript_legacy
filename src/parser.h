@@ -47,6 +47,7 @@ private:
 	Expression* expression();
 	Expression* primaryexpr();
 	Expression* boundedexpr();
+	Expression* insertbinexpr();
 	Expression* factor();
 	IfExpr* ifexpr();
 	MenuExpr* menuexpr();
