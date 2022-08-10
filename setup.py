@@ -14,9 +14,9 @@ if platform.system() == "Linux" or platform.system() == "Darwin":
     extra_compile_args = ["-std=c++11"]
 
 setup(name="ccscript",
-    version="1.339",
+    version="1.4",
     description="ccscript",
-    url="http://starmen.net/pkhack/ccscript",
+    url="https://github.com/pk-hack/CoilSnake/wiki/CCScript",
     ext_modules=[
         Extension("ccscript",
                   source_files,
