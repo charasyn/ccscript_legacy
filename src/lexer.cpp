@@ -349,7 +349,9 @@ symbol Lexer::LexSymbol()
 				return LexNumber();
 			}
 			else {
-				Error(string("unexpected character '") + current + "'");
+				char buf[8];
+				snprintf(buf, 8, "%02X", (unsigned int)(current & 0xFF));
+				Error(string("unexpected character 0x") + buf);
 				Next();
 				continue;
 			}
