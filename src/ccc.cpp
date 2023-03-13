@@ -42,7 +42,7 @@ string getbasepath(const char* p)
 
 void printversion()
 {
-	cout << "ccc version 1.339 Duck Tape Edition" << endl;
+	cout << "ccc version 1.401 Duck Tape Edition" << endl;
 }
 
 void printusage()
