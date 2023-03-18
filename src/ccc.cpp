@@ -10,20 +10,13 @@
 #ifdef _WIN32
 	#include <codecvt>
 	#include <iterator>
-	#ifndef _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-	#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-	#endif // !_SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
-	#include <experimental/filesystem>
-	namespace fs = std::experimental::filesystem::v1;
-#else
-	#include "filesystem/filesystem_mini.h"
-	namespace fs = filesystem;
 #endif
 
 #include "ccc.h"
 #include "compiler.h"
 #include "module.h"
 #include "util.h"
+#include "fs.h"
 
 using std::vector;
 using std::string;
@@ -42,7 +35,7 @@ string getbasepath(const char* p)
 
 void printversion()
 {
-	cout << "ccc version 1.401 Duck Tape Edition" << endl;
+	cout << "ccc version 1.500 - Urban Zombie Edition" << endl;
 }
 
 void printusage()
@@ -264,7 +257,7 @@ int cccmain(int argc, const char* argv[])
 	if(!summaryfile.empty())
 	{
 		std::fstream file;
-		file.open(ConvertToNativeString(summaryfile).c_str(), std::ios_base::out|std::ios_base::trunc);
+		file.open(util::ConvertToNativeString(summaryfile).c_str(), std::ios_base::out|std::ios_base::trunc);
 		if(file.fail())
 		{
 			std::cerr << "Couldn't open " << summaryfile << " to write summary file." << std::endl;

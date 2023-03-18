@@ -6,7 +6,7 @@ OBJDIR = obj
 BINDIR = bin
 OUTFILE = ccc
 SOURCES = ccc.cpp compiler.cpp module.cpp bytechunk.cpp lexer.cpp parser.cpp ast.cpp \
-          stringparser.cpp symboltable.cpp table.cpp value.cpp anchor.cpp
+          stringparser.cpp symboltable.cpp table.cpp value.cpp anchor.cpp util.cpp
 OBJECTS = $(SOURCES:%.cpp=$(OBJDIR)/%.o)
 INSTALL_DIR = /usr/local
 
@@ -91,18 +91,19 @@ $(OBJDIR)/%.o: %.cpp
 #
 # Object dependencies
 #
-$(OBJDIR)/ccc.o:			module.h
-$(OBJDIR)/compiler.o:		compiler.h module.h ast.h bytechunk.h symboltable.h exception.h
-$(OBJDIR)/module.o:			module.h compiler.h ast.h lexer.h parser.h symboltable.h bytechunk.h exception.h
-$(OBJDIR)/bytechunk.o:		bytechunk.h ast.h
-$(OBJDIR)/lexer.o: 			lexer.h
-$(OBJDIR)/parser.o: 		parser.h lexer.h ast.h
-$(OBJDIR)/ast.o: 			ast.h symboltable.h bytechunk.h module.h stringparser.h exception.h
-$(OBJDIR)/stringparser.o:	stringparser.h ast.h parser.h module.h bytechunk.h
-$(OBJDIR)/symboltable.o: 	symboltable.h ast.h
-$(OBJDIR)/anchor.o:			anchor.h
-$(OBJDIR)/value.o:			value.h table.h function.h string.h
-$(OBJDIR)/table.o:			table.h
+$(OBJDIR)/anchor.o:       anchor.h
+$(OBJDIR)/ast.o:          ast.h err.h value.h anchor.h symboltable.h string.h bytechunk.h module.h stringparser.h exception.h compiler.h util.h fs.h filesystem/filesystem_mini.h
+$(OBJDIR)/bytechunk.o:    bytechunk.h anchor.h ast.h err.h value.h exception.h
+$(OBJDIR)/ccc.o:          ccc.h compiler.h module.h err.h util.h fs.h filesystem/filesystem_mini.h
+$(OBJDIR)/compiler.o:     compiler.h module.h err.h anchor.h ast.h value.h bytechunk.h symboltable.h exception.h util.h fs.h filesystem/filesystem_mini.h
+$(OBJDIR)/lexer.o:        lexer.h err.h
+$(OBJDIR)/module.o:       module.h err.h compiler.h ast.h value.h lexer.h parser.h symboltable.h bytechunk.h exception.h util.h
+$(OBJDIR)/parser.o:       parser.h lexer.h err.h ast.h value.h
+$(OBJDIR)/stringparser.o: stringparser.h err.h value.h ast.h parser.h lexer.h module.h bytechunk.h
+$(OBJDIR)/symboltable.o:  symboltable.h anchor.h ast.h err.h value.h
+$(OBJDIR)/table.o:        table.h
+$(OBJDIR)/util.o:         util.h fs.h filesystem/filesystem_mini.h
+$(OBJDIR)/value.o:        value.h table.h function.h string.h bytechunk.h
 
 
 .PHONY: clean tests mkdirs libsdir runtests

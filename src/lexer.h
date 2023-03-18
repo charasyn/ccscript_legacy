@@ -17,7 +17,7 @@ typedef enum {
 	bytesym, shortsym, longsym, romsym, romtblsym,
 	leftparen, rightparen, leftbrace, rightbrace, leftbracket,
 	rightbracket, period, colon, comma, equals,
-	importsym,
+	importsym, insertbinsym,
 	countsym, setcountsym,
 	errorsym
 } symbol;

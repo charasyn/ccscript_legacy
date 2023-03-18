@@ -32,7 +32,6 @@ public:
 
 	bool Failed() { return failed; }
 
-	std::string FindModule(const std::string& name, const std::string& filedir);
 	Module* FindAndLoadModule(const std::string& name, const std::string& filedir);
 	Module* LoadModule(const std::string& filename);
 	Module* GetModule(const std::string& name);
