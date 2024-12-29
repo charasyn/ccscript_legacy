@@ -66,7 +66,7 @@ public:
 
 private:
 	void Init();
-	void Next();
+	void Next(bool allowDecodingErrors=false);
 	symbol LexSymbol();
 	symbol LexStringLiteral();
 	symbol LexIdentifier();
@@ -75,12 +75,13 @@ private:
 	bool LexBlockComment();
 	void Error(const std::string& msg);
 	void Warning(const std::string& msg);
+	void Newline();
 
 	ErrorReceiver *error;
 
 	std::map<std::string, symbol> keywords;
 	std::string in;
 	size_t inpos;
-	char current;
+	char32_t current;
 };
 

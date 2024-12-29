@@ -869,7 +869,7 @@ Value BoundedExpr::Evaluate(SymbolTable* scope, EvalContext& context, bool asboo
 		for(int i = 0; i < size - valid_size; ++i)
 			value->Byte(0);
 	}
-	catch(Exception& e)
+	catch(const Exception& e)
 	{
 		Error(e.GetMessage());
 	}
@@ -914,7 +914,7 @@ Value InsertBinExpr::Evaluate(SymbolTable* scope, EvalContext& context, bool asb
 		// Put file data into value:
 		value->AppendBytes(data, data_size);
 	}
-	catch (Exception& e) {
+	catch (const Exception& e) {
 		Error(e.GetMessage());
 	}
 

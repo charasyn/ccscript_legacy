@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <errno.h>
 #include "lexer.h"
+#include "exception.h"
+#include "utf8.h"
 
 using namespace std;
 
@@ -148,41 +150,55 @@ std::string Token::ToString()
 	}
 }
 
-void Lexer::Next()
+void Lexer::Next(bool allowDecodingErrors)
 {
-	if(inpos >= in.length())
+	if(inpos >= in.length()) {
 		current = eob;
-	else {
-		current = in.at(inpos++);
-		column++;
+		return;
 	}
+	auto oldpos = inpos;
+	current = utf8::utf8to32(in, inpos);
+	if (current == utf8::DECODING_ERROR) {
+		if(!allowDecodingErrors) {
+			stringstream ss;
+			ss << "invalid UTF-8 sequence: " << std::setbase(16);
+			for (auto pos = oldpos; pos < inpos; ++pos) {
+				ss << in[pos];
+			}
+			Error(ss.str());
+		}
+		// Use Unicode replacement character? Idk what the right thing to do here is.
+		// We either logged the error or this character is in a comment so we don't care.
+		current = 0xFFFD;
+	}
+	column++;
 }
 
 void Lexer::LexSingleComment()
 {
 	do {
-		Next();
+		Next(true);
 	} while(current != '\n' && current != eob);
 }
 
 bool Lexer::LexBlockComment()
 {
-	Next();
+	Next(true);
 	for(;;) {
 		switch(current) {
 			case '*':
-				Next(); // Check next character for comment terminator
+				Next(true); // Check next character for comment terminator
 				if(current == '/') { Next(); return true; }
 				continue;
 			case '\n':
-				line++;
-				Next();
+				Newline();
+				Next(true);
 				continue;
 			case eob:
 				Error("unexpected end of file in comment");
 				return false;	// fix infinite loop in unclosed comment :P
 			default:
-				Next();
+				Next(true);
 		}
 	}
 	return true;
@@ -200,7 +216,7 @@ symbol Lexer::LexStringLiteral()
 				return errorsym;
 			case '\n':
 				Error("newline in string");
-				line++;
+				Newline();
 				return errorsym;
 			case '\\':
 				Next();
@@ -213,7 +229,7 @@ symbol Lexer::LexStringLiteral()
 					continue;
 				}
 			default:
-				currentstr += current;
+				currentstr += utf8::utf32to8(current);
 				Next();
 		}
 	}
@@ -227,7 +243,7 @@ symbol Lexer::LexIdentifier()
 	currentstr = "";
 
 	do {
-		currentstr += current;
+		currentstr += utf8::utf32to8(current);
 		Next();
 	} while(isalnum(current) || current == '_');
 
@@ -240,10 +256,10 @@ symbol Lexer::LexIdentifier()
 
 symbol Lexer::LexNumber()
 {
-	char first = current;
+	auto first = current;
 	int radix = 0;
 	bool negate = false;
-	currentstr = "";
+	u32string numstr{};
 
 	if(current == '-') {
 		negate = true;
@@ -254,20 +270,20 @@ symbol Lexer::LexNumber()
 	Next();
 
 	if(first == '0' && toupper(current) == 'X') {
-		currentstr += first;
-		currentstr += current;
+		numstr += first;
+		numstr += current;
 		radix = 16;
 		Next();
 		while(isxdigit(current)) {
-			currentstr += current;
+			numstr += current;
 			Next();
 		}
 	}
 	else {
 		radix = 10;
-		currentstr += first;
+		numstr += first;
 		while(isdigit(current)) {
-			currentstr += current;
+			numstr += current;
 			Next();
 		}
 	}
@@ -276,7 +292,7 @@ symbol Lexer::LexNumber()
 		Error("number has invalid suffix");
 	}
 	unsigned int temp = 0;
-	stringstream ss(currentstr);
+	basic_stringstream<char32_t> ss(numstr);
 	ss >> setbase(radix) >> temp;
 	if(ss.fail()) {
 		Warning("integer constant capped at 0xffffffff");
@@ -301,8 +317,7 @@ symbol Lexer::LexSymbol()
 			continue;
 
 		case '\n':
-			line++;
-			column = 1;
+			Newline();
 			Next();
 			continue;
 
@@ -318,7 +333,7 @@ symbol Lexer::LexSymbol()
 
 		case '!':
 		case '~':
-			currentstype = current;
+			currentstype = static_cast<char>(current);
 			Next();
 			if(current != '\"') {
 				Error("string expected");
@@ -372,13 +387,13 @@ symbol Lexer::Peek()
 {
 	// Not the most elegant way to peek, but it works...
 
-	int oldint = currentint;
-	string oldstr = currentstr;
-	char oldstype = currentstype;
-	int oldline = line;
-	int oldcolumn = column;
-	int oldpos = inpos;
-	char oldc = current;
+	auto oldint = currentint;
+	auto oldstr = currentstr;
+	auto oldstype = currentstype;
+	auto oldline = line;
+	auto oldcolumn = column;
+	auto oldpos = inpos;
+	auto oldc = current;
 
 	symbol sym = LexSymbol();
 	
@@ -393,5 +408,10 @@ symbol Lexer::Peek()
 	}
 
 	return sym;
+}
+
+void Lexer::Newline() {
+	line++;
+	column = 1;
 }
 

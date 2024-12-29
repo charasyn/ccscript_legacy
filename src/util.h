@@ -9,13 +9,21 @@
 namespace util {
 
 #ifdef _WIN32
-inline std::wstring ConvertToNativeString(const std::string str) {
+inline std::wstring ConvertToNativeString(const std::string & str) {
 	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
 	std::wstring wstr = converter.from_bytes(str);
 	return wstr;
 }
+inline std::string ConvertFromNativeString(const std::wstring & str) {
+	std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+	std::string bstr = converter.to_bytes(str);
+	return bstr;
+}
 #else
-inline std::string ConvertToNativeString(const std::string str) {
+inline std::string ConvertToNativeString(const std::string & str) {
+	return str;
+}
+inline std::string ConvertFromNativeString(const std::string & str) {
 	return str;
 }
 #endif

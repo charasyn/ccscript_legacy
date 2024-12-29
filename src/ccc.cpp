@@ -10,6 +10,8 @@
 #ifdef _WIN32
 	#include <codecvt>
 	#include <iterator>
+	#define WIN32_LEAN_AND_MEAN
+	#include <Windows.h>
 #endif
 
 #include "ccc.h"
@@ -287,6 +289,10 @@ int wmain(int argc, const wchar_t* argv[])
 			utf8Argv.emplace_back(utf8Args[i].c_str());
 		}
 	}
+
+	// Make console I/O UTF-8.
+	SetConsoleOutputCP(65001);
+	SetConsoleCP(65001);
 
 	return cccmain(argc, utf8Argv.data());
 }

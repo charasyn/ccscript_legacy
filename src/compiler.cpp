@@ -232,7 +232,7 @@ void Compiler::Compile()
 
 		DoDelayedWrites();
 	}
-	catch(Exception& e)
+	catch(const Exception& e)
 	{
 		Error(e.GetMessage());
 	}
