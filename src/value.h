@@ -129,10 +129,7 @@ public:
 	Function* GetWeakFunction() const;
 
 	// Universal conversions
-	String ToString() const;
 	String ToCodeString() const;
-	Value ToStringValue() const;
-	Value ToCodeStringValue() const;
 
 public:
 	static Value Null;

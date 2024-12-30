@@ -161,10 +161,11 @@ void Lexer::Next(bool allowDecodingErrors)
 	if (current == utf8::DECODING_ERROR) {
 		if(!allowDecodingErrors) {
 			stringstream ss;
-			ss << "invalid UTF-8 sequence: " << std::setbase(16);
+			ss << "invalid UTF-8 sequence '" << std::setbase(16);
 			for (auto pos = oldpos; pos < inpos; ++pos) {
 				ss << in[pos];
 			}
+			ss << "'";
 			Error(ss.str());
 		}
 		// Use Unicode replacement character? Idk what the right thing to do here is.

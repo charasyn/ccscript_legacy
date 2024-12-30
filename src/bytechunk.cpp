@@ -20,13 +20,6 @@ ByteChunk::ByteChunk()
 {
 }
 
-ByteChunk::ByteChunk(const string& str)
-	: pos(0)
-{
-	for(string::const_iterator it = str.begin(); it != str.end(); ++it)
-		Char(*it);
-}
-
 ByteChunk::ByteChunk(const ByteChunk& other)
 	: bytes(other.bytes), /*refs(other.refs),*/ pos(other.pos),
 	  baseaddress(other.baseaddress), cinfo(other.cinfo)
@@ -63,30 +56,6 @@ bool ByteChunk::operator!=(const ByteChunk& rhs) const
 {
 	return !operator==(rhs);
 }
-
-bool ByteChunk::operator==(const string& rhs) const
-{
-	return operator==(ByteChunk(rhs));
-}
-
-bool ByteChunk::operator!=(const string& rhs) const
-{
-	return !operator==(rhs);
-}
-
-//
-// Friend operators (for using a std::string as the lhs of a comparison)
-//
-bool operator==(const string& lhs, const ByteChunk& rhs)
-{
-	return rhs == lhs;
-}
-
-bool operator!=(const string& lhs, const ByteChunk& rhs)
-{
-	return rhs != lhs;
-}
-
 
 //
 // String::Reference comparison operators
@@ -131,7 +100,7 @@ void ByteChunk::AppendBytes(const uint8_t *data, size_t size)
 	cinfo.insert(std::end(cinfo), size, false);
 }
 
-void ByteChunk::Char(unsigned int n)
+void ByteChunk::Char(char32_t n, const EvalContext& ctx)
 {
 	// TODO: character set mapping should be moved to a higher level;
 	// we want to be able to support multiple mappings easily.

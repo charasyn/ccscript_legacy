@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "module.h"
 #include "bytechunk.h"
+#include "utf8.h"
 
 using std::string;
 
@@ -23,7 +24,7 @@ void StringParser::Warning(const string &msg, int line_unused, int col)
 
 int StringParser::acceptbyte()
 {
-	string s = "";
+	std::u32string s{};
 
 	if(!isxdigit(current)) return -1;
 	s += current;
@@ -32,16 +33,30 @@ int StringParser::acceptbyte()
 	s += current;
 	//next();
 
-	int n = strtoul(s.c_str(), NULL, 16);
-	return n;
+	unsigned int temp = 0;
+	std::basic_stringstream<char32_t> ss(s);
+	ss >> std::setbase(16) >> temp;
+	return static_cast<int>(temp);
 }
 
 void StringParser::next()
 {
-	if(pos < str.length())
-		current = str[pos++];
-	else
+	if(strpos >= str.length()) {
 		current = 0;
+		return;
+	}
+	auto oldpos = strpos;
+	current = utf8::utf8to32(str, strpos);
+	if (current == utf8::DECODING_ERROR) {
+		std::stringstream ss;
+		ss << "invalid UTF-8 sequence '" << std::setbase(16);
+		for (auto pos = oldpos; pos < strpos; ++pos) {
+			ss << str[pos];
+		}
+		ss << "'";
+		Error(ss.str(), 0, 0);
+		current = 0;
+	}
 }
 
 Value StringParser::Evaluate(SymbolTable* scope, EvalContext& context)
@@ -93,7 +108,7 @@ Value StringParser::Evaluate(SymbolTable* scope, EvalContext& context)
 			}
 			else {
 				// Default:
-				output->Char(current);
+				output->Char(current, context);
 			}
 			next();
 			continue;
@@ -107,16 +122,16 @@ Value StringParser::Evaluate(SymbolTable* scope, EvalContext& context)
 Value StringParser::expression(SymbolTable* scope, EvalContext& context)
 {
 	// Create a parser on just this section of the string
-	size_t n = str.find('}', pos);
+	size_t n = str.find('}', strpos);
 
 	if(n == string::npos) {
 		Error(string("unterminated expression block"),0,0);
-		pos = n;
+		strpos = n;
 		next();
 		return Value();
 	}
 
-	string exstr = str.substr(pos, (n-pos));
+	string exstr = str.substr(strpos, (n-strpos));
 
 	Parser parser(exstr);
 	parser.SetErrorHandler(this);
@@ -126,7 +141,7 @@ Value StringParser::expression(SymbolTable* scope, EvalContext& context)
 	Value result = e->Evaluate(scope, context);
 
 	// Skip the expression block
-	pos = n+1;
+	strpos = n+1;
 	next();
 
 	return result;

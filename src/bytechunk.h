@@ -8,7 +8,7 @@
 #include <cstdint>
 
 class Anchor;
-
+class EvalContext;
 
 // Changes for CCScript 2.0:
 //
@@ -68,7 +68,6 @@ public:
 
 public:
 	ByteChunk();
-	ByteChunk(const std::string& str);
 	ByteChunk(const ByteChunk&);
 
 	//
@@ -76,11 +75,6 @@ public:
 	//
 	bool operator==(const ByteChunk& rhs) const;
 	bool operator!=(const ByteChunk& rhs) const;
-	// Allow comparisons to std::strings:
-	bool operator==(const std::string& rhs) const;
-	bool operator!=(const std::string& rhs) const;
-	friend bool operator==(const std::string& lhs, const ByteChunk& rhs);
-	friend bool operator!=(const std::string& lhs, const ByteChunk& rhs);
 
 	unsigned int GetSize() const;
 
@@ -115,7 +109,7 @@ private:
 	//
 public:
 	void Byte(unsigned int n);
-	void Char(unsigned int n);
+	void Char(char32_t n, const EvalContext& ctx);
 	void Short(unsigned int n);
 	void Long(unsigned int n);
 	void AppendBytes(const uint8_t *data, size_t size);

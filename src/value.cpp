@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 
+#include "exception.h"
 #include "table.h"
 #include "function.h"
 #include "string.h"
@@ -281,34 +282,6 @@ Function* Value::GetWeakFunction() const
 	return val.function;
 }
 
-
-
-// String conversions
-String Value::ToString() const
-{
-	switch(type)
-	{
-	case Type::Number:
-		{
-		std::stringstream ss;
-		ss << val.number;
-		return ss.str();
-		}
-	case Type::String:
-		// Just return a copy of the string
-		return *val.string;
-	case Type::Table:
-		return String("<table>");
-	case Type::Function:
-		return String("<function>");
-	case Type::Label:
-		return String("<label>");
-	default:
-		return String("<invalid type>");
-	}
-}
-
-
 String Value::ToCodeString() const
 {
 	switch(type)
@@ -321,30 +294,10 @@ String Value::ToCodeString() const
 		}
 	case Type::String:
 		return *val.string;
-	case Type::Table:
-		return String("<table>");
-	case Type::Function:
-		return String("<function>");
-	case Type::Label:
-		return String("<label>");
 	default:
-		return String("<invalid type>");
+		throw Exception("Can't convert value to code string");
 	}
 }
-
-
-Value Value::ToStringValue() const
-{
-	return Value();
-}
-
-Value Value::ToCodeStringValue() const
-{
-	return Value();
-}
-
-
-
 
 bool Value::IsRefCounted() const
 {

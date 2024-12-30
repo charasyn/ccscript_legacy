@@ -895,12 +895,12 @@ Value InsertBinExpr::Evaluate(SymbolTable* scope, EvalContext& context, bool asb
 		// Try and read the file:
 		// Only 64K bytes can go in a bank. Allocate that much space, and read up to
 		// that many bytes.
-		uint8_t *data = new uint8_t[65536];
+		auto data = std::make_unique<uint8_t[]>(65536);
 		std::streamsize data_size;
 		{
 			std::ifstream fobj(util::ConvertToNativeString(fullpath), std::ios::binary);
 			fobj.seekg(offset, std::ios::beg);
-			fobj.read(reinterpret_cast<char*>(data), (size == -1) ? 65536 : size);
+			fobj.read(reinterpret_cast<char*>(data.get()), (size == -1) ? 65536 : size);
 			data_size = fobj.gcount();
 			if(size != -1 && data_size != size) {
 				std::stringstream ss;
@@ -912,7 +912,7 @@ Value InsertBinExpr::Evaluate(SymbolTable* scope, EvalContext& context, bool asb
 		}
 		
 		// Put file data into value:
-		value->AppendBytes(data, data_size);
+		value->AppendBytes(data.get(), static_cast<size_t>(data_size));
 	}
 	catch (const Exception& e) {
 		Error(e.GetMessage());

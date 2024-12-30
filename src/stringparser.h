@@ -16,19 +16,15 @@ class StringParser : public ErrorReceiver
 {
 private:
 	std::string str;
-	unsigned int pos;
-	char current;
+	size_t strpos;
+	char32_t current;
 	ErrorReceiver* error;
 
 	int line;		// strictly for error reporting
 
 public:
-	StringParser(const std::string& str, int line, ErrorReceiver* e) {
-		this->str = str;
-		this->error = e;
-		this->line = line;
-		this->pos = 0;
-	}
+	StringParser(const std::string& str, int line, ErrorReceiver* e) :
+		str(str), strpos(0), current(0), error(e), line(line) {}
 	Value Evaluate(SymbolTable* scope, EvalContext& context);
 
 	// ErrorReceiver implementation
@@ -37,7 +33,6 @@ public:
 
 private:
 	int acceptbyte();
-	bool expect(char c);
 	void next();
 	Value expression(SymbolTable* scope, EvalContext& context);
 };
