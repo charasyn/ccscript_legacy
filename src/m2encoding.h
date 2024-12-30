@@ -27,7 +27,7 @@ const std::unordered_map<char32_t, uint8_t> m2encoding = {
     {U'」', 0x3D},
     {U'♪', 0x3E},
     {U'○', 0x3F},
-    {U'•', 0x40},
+    {U'@', 0x40},
     {U'A', 0x41},
     {U'B', 0x42},
     {U'C', 0x43},

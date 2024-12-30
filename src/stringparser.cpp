@@ -108,7 +108,11 @@ Value StringParser::Evaluate(SymbolTable* scope, EvalContext& context)
 			}
 			else {
 				// Default:
-				output->Char(current, context);
+				try {
+					output->Char(current, context);
+				} catch (const Exception & ex) {
+					Error(ex.GetMessage(), 0, 0);
+				}
 			}
 			next();
 			continue;

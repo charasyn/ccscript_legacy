@@ -13,6 +13,7 @@
 #include "ast.h"
 #include "compiler.h"
 #include "exception.h"
+#include "utf8.h"
 
 #include "m2encoding.h"
 
@@ -113,6 +114,7 @@ void ByteChunk::Char(char32_t n, const EvalContext& ctx)
 		} else {
 			stringstream ss;
 			ss << "illegal codepoint 0x" << std::setbase(16) << n;
+			ss << " ('" << utf8::utf32to8(n) << "')";
 			throw Exception(ss.str());
 		}
 	} else {
@@ -121,6 +123,7 @@ void ByteChunk::Char(char32_t n, const EvalContext& ctx)
 		} else {
 			stringstream ss;
 			ss << "illegal codepoint 0x" << std::setbase(16) << n;
+			ss << " ('" << utf8::utf32to8(n) << "')";
 			throw Exception(ss.str());
 		}
 	}
