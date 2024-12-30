@@ -69,18 +69,12 @@ void printusage()
 
 int cccmain(int argc, const char* argv[])
 {
-	//
-	// Get the default libs path
-	//
-	string libspath = ( fs::path(argv[0]).parent_path() / "lib" ).string();
-
-
 	if(argc < 2) {
 		printusage();
 		return -1;
 	}
 
-
+	string libspath{};
 	string outfile;
 	string startstr;
 	string endstr;
@@ -96,6 +90,7 @@ int cccmain(int argc, const char* argv[])
 	bool printJumps = false;
 	bool printCode = false;
 	bool verbose = false;
+	bool mother2 = false;
 
 	// Command-line options:
 	//  -o <file>			output filename
@@ -111,6 +106,7 @@ int cccmain(int argc, const char* argv[])
 	//  --printCode			print the code output for each module
 	//  --summary <file>	output summary file
 	//  --verbose			verbose output
+	//  --mother2			use Mother2 character encoding instead of Earthbound encoding
 
 	int p = 1;
 	while(p < argc) {
@@ -202,11 +198,23 @@ int cccmain(int argc, const char* argv[])
 			p++;
 			verbose = true;
 		}
+		else if(!strcmp(argv[p],"--mother2"))
+		{
+			p++;
+			mother2 = true;
+		}
 		else {
 			files.push_back(argv[p++]);
 		}
 	}
 
+	if (libspath.empty()) {
+		//
+		// Get the default libs path
+		//
+		const auto libdir = mother2 ? "libm2" : "lib";
+		libspath = ( fs::path(argv[0]).parent_path() / libdir ).string();
+	}
 
 
 	if(!startstr.empty())
@@ -236,6 +244,7 @@ int cccmain(int argc, const char* argv[])
 	compiler.libdir = libspath;
 	compiler.noreset = noreset;
 	compiler.nostdlibs = nostdlibs;
+	compiler.mother2 = mother2;
 
 	/*
 	 * 7/25/2009:

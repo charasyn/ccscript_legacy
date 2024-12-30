@@ -11,7 +11,10 @@
 
 #include "anchor.h"
 #include "ast.h"
+#include "compiler.h"
 #include "exception.h"
+
+#include "m2encoding.h"
 
 using namespace std;
 
@@ -102,9 +105,26 @@ void ByteChunk::AppendBytes(const uint8_t *data, size_t size)
 
 void ByteChunk::Char(char32_t n, const EvalContext& ctx)
 {
-	// TODO: character set mapping should be moved to a higher level;
-	// we want to be able to support multiple mappings easily.
-	Byte(n + 0x30);
+	uint8_t value;
+	if (ctx.compiler->mother2) {
+		const auto it = m2encoding.find(n);
+		if (it != m2encoding.cend()) {
+			value = it->second;
+		} else {
+			stringstream ss;
+			ss << "illegal codepoint 0x" << std::setbase(16) << n;
+			throw Exception(ss.str());
+		}
+	} else {
+		if (0x20 <= n && n < 0x7f) {
+			value = static_cast<uint8_t>(n) + 0x30;
+		} else {
+			stringstream ss;
+			ss << "illegal codepoint 0x" << std::setbase(16) << n;
+			throw Exception(ss.str());
+		}
+	}
+	Byte(value);
 	cinfo[pos-1] = true;
 }
 

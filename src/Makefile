@@ -66,6 +66,11 @@ libsdir:
   endif
 	@$(CP) std.ccs $(BINDIR)$(SEP)lib
 	@$(CP) stdarg.ccs $(BINDIR)$(SEP)lib
+  ifeq "$(wildcard $(BINDIR)/libm2 )" ""
+	@-mkdir $(BINDIR)$(SEP)libm2
+  endif
+	@$(CP) stdm2.ccs $(BINDIR)$(SEP)libm2
+	@$(CP) stdargm2.ccs $(BINDIR)$(SEP)libm2
 
 # Builds test framework
 tests:

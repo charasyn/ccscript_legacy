@@ -17,6 +17,7 @@ class RomAccess;
 class Compiler
 {
 public:
+	std::string libdir;
 	bool printAST;
 	bool printRT;
 	bool printJumps;
@@ -24,7 +25,7 @@ public:
 	bool verbose;
 	bool noreset;
 	bool nostdlibs;
-	std::string libdir;
+	bool mother2;
 
 public:
 	Compiler(const std::string& romfile, unsigned int outadr, unsigned int endadr = 0);

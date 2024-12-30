@@ -73,6 +73,9 @@
       <Command>%40mkdir $(OutDir)lib 2&gt;NUL
 %40copy /Y $(ProjectDir)\..\src\std.ccs $(OutDir)lib 1&gt;NUL
 %40copy /Y $(ProjectDir)\..\src\stdarg.ccs $(OutDir)lib 1&gt;NUL
+%40mkdir $(OutDir)libm2 2&gt;NUL
+%40copy /Y $(ProjectDir)\..\src\stdm2.ccs $(OutDir)libm2 1&gt;NUL
+%40copy /Y $(ProjectDir)\..\src\stdargm2.ccs $(OutDir)libm2 1&gt;NUL
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
