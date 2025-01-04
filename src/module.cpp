@@ -17,6 +17,7 @@
 #include "bytechunk.h"
 #include "exception.h"
 #include "util.h"
+#include "utf8.h"
 
 using namespace std;
 
@@ -127,12 +128,16 @@ string Module::NameFromFilename(const string& filename)
  */
 bool Module::CheckName(const string& name)
 {
-	// String must contain only alphanumeric characters and _
-	// Also, cannot start with a number
-	if(isdigit(name[0])) return false;
-	for(unsigned int i = 0; i < name.length(); ++i) {
-		if(!isalnum(name[i]) && name[i] != '_')
+	// String must be a valid identifier
+	bool first = true;
+	size_t offset = 0;
+	while(offset < name.length()) {
+		auto cp = utf8::utf8to32(name, offset);
+		if ((first && !util::IsIdentifierStart(cp)) ||
+		    (!first && !util::IsIdentifier(cp))) {
 			return false;
+		}
+		first = false;
 	}
 	return true;
 }

@@ -6,6 +6,7 @@
 #include "module.h"
 #include "bytechunk.h"
 #include "utf8.h"
+#include "util.h"
 
 using std::string;
 
@@ -24,17 +25,17 @@ void StringParser::Warning(const string &msg, int line_unused, int col)
 
 int StringParser::acceptbyte()
 {
-	std::u32string s{};
+	std::string s{};
 
-	if(!isxdigit(current)) return -1;
+	if(!util::IsHexDigit(current)) return -1;
 	s += current;
 	next();
-	if(!isxdigit(current)) return -1;
+	if(!util::IsHexDigit(current)) return -1;
 	s += current;
 	//next();
 
 	unsigned int temp = 0;
-	std::basic_stringstream<char32_t> ss(s);
+	std::stringstream ss(s);
 	ss >> std::setbase(16) >> temp;
 	return static_cast<int>(temp);
 }

@@ -28,6 +28,33 @@ inline std::string ConvertFromNativeString(const std::string & str) {
 }
 #endif
 
+inline bool IsDigit(char32_t cp) {
+	return ('0' <= cp && cp <= '9');
+}
+
+inline bool IsHexDigit(char32_t cp) {
+	return IsDigit(cp) ||
+	       ('A' <= cp && cp <= 'F') ||
+	       ('a' <= cp && cp <= 'f');
+}
+
+inline bool IsAlphabetical(char32_t cp) {
+	return ('A' <= cp && cp <= 'Z') ||
+	       ('a' <= cp && cp <= 'z');
+}
+
+inline bool IsAlphanumerical(char32_t cp) {
+	return IsDigit(cp) || IsAlphabetical(cp);
+}
+
+inline bool IsIdentifierStart(char32_t cp) {
+	return IsAlphabetical(cp) || cp == '_';
+}
+
+inline bool IsIdentifier(char32_t cp) {
+	return IsAlphanumerical(cp) || cp == '_';
+}
+
 /*
  * Searches for a module with a given name in the include path and
  * returns a relative path to it, if found.

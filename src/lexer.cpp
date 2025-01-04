@@ -9,6 +9,7 @@
 #include "lexer.h"
 #include "exception.h"
 #include "utf8.h"
+#include "util.h"
 
 using namespace std;
 
@@ -246,7 +247,7 @@ symbol Lexer::LexIdentifier()
 	do {
 		currentstr += utf8::utf32to8(current);
 		Next();
-	} while(isalnum(current) || current == '_');
+	} while(util::IsIdentifier(current));
 
 	if(keywords.find(currentstr) != keywords.end()) {
 		return keywords[currentstr];
@@ -260,7 +261,7 @@ symbol Lexer::LexNumber()
 	auto first = current;
 	int radix = 0;
 	bool negate = false;
-	u32string numstr{};
+	string numstr{};
 
 	if(current == '-') {
 		negate = true;
@@ -275,7 +276,7 @@ symbol Lexer::LexNumber()
 		numstr += current;
 		radix = 16;
 		Next();
-		while(isxdigit(current)) {
+		while(util::IsHexDigit(current)) {
 			numstr += current;
 			Next();
 		}
@@ -283,17 +284,17 @@ symbol Lexer::LexNumber()
 	else {
 		radix = 10;
 		numstr += first;
-		while(isdigit(current)) {
+		while(util::IsDigit(current)) {
 			numstr += current;
 			Next();
 		}
 	}
 
-	if(isalnum(current)) {
+	if(util::IsAlphanumerical(current)) {
 		Error("number has invalid suffix");
 	}
 	unsigned int temp = 0;
-	basic_stringstream<char32_t> ss(numstr);
+	stringstream ss(numstr);
 	ss >> setbase(radix) >> temp;
 	if(ss.fail()) {
 		Warning("integer constant capped at 0xffffffff");
@@ -360,16 +361,17 @@ symbol Lexer::LexSymbol()
 		case ':': Next(); return colon;
 
 		default:
-			if(isalpha(current) || current == '_') {
+			if(util::IsIdentifierStart(current)) {
 				return LexIdentifier();
 			}
-			else if(isdigit(current) || current == '-') {
+			else if(util::IsDigit(current) || current == '-') {
 				return LexNumber();
 			}
 			else {
-				char buf[8];
-				snprintf(buf, 8, "%02X", (unsigned int)(current & 0xFF));
-				Error(string("unexpected character 0x") + buf);
+				stringstream ss;
+				ss << "unexpected character 0x" << std::setbase(16) << current;
+				ss << " ('" << utf8::utf32to8(current) << "')";
+				Error(ss.str());
 				Next();
 				continue;
 			}
