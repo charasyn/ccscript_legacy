@@ -4,8 +4,8 @@
 std::string util::FindIncludedFile(const std::string& name, const std::string& filedir, const std::string& libdir)
 {
 	fs::path fpName{ConvertToNativeString(name)};
-	fs::path fpFiledir{ConvertToNativeString(name)};
-	fs::path fpLibdir{ConvertToNativeString(name)};
+	fs::path fpFiledir{ConvertToNativeString(filedir)};
+	fs::path fpLibdir{ConvertToNativeString(libdir)};
 	// Complete paths aren't looked for in include directories
 	if (fpName.is_absolute()) {
 		return fs::exists( fpName )? name : std::string();
@@ -16,12 +16,12 @@ std::string util::FindIncludedFile(const std::string& name, const std::string& f
 	if( fs::exists( base ) ) {
 		return ConvertFromNativeString(base);
 	}
-
+	
 	// Next, try in the compilation working directory
 	if( fs::exists( fpName ) ) {
 		return name;
 	}
-
+	
 	// Finally, check the libs directory, if it has been provided.
 	if(!libdir.empty()) {
 		auto libpath = fpLibdir / fpName;
