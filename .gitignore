@@ -1,5 +1,6 @@
 vs2019/build
 vs2019/.vs
+/build
 /dist
 /*.egg-info
 /*.so
