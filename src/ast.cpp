@@ -2,11 +2,12 @@
 
 #include "ast.h"
 
+#include <algorithm>
+#include <cstdint>
+#include <iostream>
+#include <memory>
 #include <sstream>
 #include <string>
-#include <algorithm>
-#include <iostream>
-#include <cstdint>
 
 #include "anchor.h"
 #include "symboltable.h"
