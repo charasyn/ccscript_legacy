@@ -1,7 +1,7 @@
 #
 # Crappy makefile for ccscript compiler (ccc)
 #
-CXXFLAGS = -c -Wall -O3 -std=c++11
+CXXFLAGS = -c -Wall -O3 -std=c++17
 OBJDIR = obj
 BINDIR = bin
 OUTFILE = ccc
