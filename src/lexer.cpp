@@ -1,11 +1,7 @@
 /* CCScript lexical analyzer/scanner */
 
 
-#include <iostream>
 #include <string>
-#include <sstream>
-#include <iomanip>
-#include <errno.h>
 #include "lexer.h"
 
 using namespace std;
@@ -258,30 +254,55 @@ symbol Lexer::LexNumber()
 		currentstr += current;
 		radix = 16;
 		Next();
-		while(isxdigit(current)) {
-			currentstr += current;
-			Next();
+		while(true) {
+		    if (isxdigit(current)) {
+				currentstr += current;
+				Next();
+			} else if (current == '_') {
+			    Next();
+			} else {
+			    break;
+			}
 		}
-	}
-	else {
+	} else if(first == '0' && toupper(current) == 'B') {
+	    currentstr += first;
+		currentstr += current;
+		radix = 2;
+		Next();
+		while(true) {
+		    if (current == '0' || current == '1') {
+				currentstr += current;
+				Next();
+			} else if (current == '_') {
+			    Next();
+			} else {
+			    break;
+			}
+		}
+	} else {
 		radix = 10;
 		currentstr += first;
-		while(isdigit(current)) {
-			currentstr += current;
-			Next();
+		while(true) {
+		    if (isdigit(current)) {
+				currentstr += current;
+				Next();
+			} else if (current == '_') {
+			    Next();
+			} else {
+			    break;
+			}
 		}
 	}
 
 	if(isalnum(current)) {
 		Error("number has invalid suffix");
 	}
-	unsigned int temp = 0;
-	stringstream ss(currentstr);
-	ss >> setbase(radix) >> temp;
-	if(ss.fail()) {
-		Warning("integer constant capped at 0xffffffff");
-		temp = 0xffffffff;
+	unsigned long long temp = std::strtoull(currentstr.c_str(), nullptr, radix);
+	if (temp > 0xffffffff) {
+	    temp = 0xffffffff;
+	    Warning("integer constant capped at 0xffffffff");
 	}
+
 	currentint = temp;
 
 	if(negate)
